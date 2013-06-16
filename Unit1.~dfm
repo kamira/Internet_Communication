@@ -1,8 +1,8 @@
 object Form1: TForm1
-  Left = 240
-  Top = 245
-  Width = 731
-  Height = 727
+  Left = 408
+  Top = 242
+  Width = 527
+  Height = 576
   Caption = 'Internet Communication'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,15 +17,15 @@ object Form1: TForm1
   object Panel_Chat: TPanel
     Left = 0
     Top = 0
-    Width = 585
-    Height = 669
+    Width = 381
+    Height = 518
     Align = alLeft
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     object Panel1: TPanel
       Left = 1
-      Top = 647
-      Width = 583
+      Top = 496
+      Width = 379
       Height = 21
       Align = alBottom
       Caption = 'Panel1'
@@ -42,17 +42,17 @@ object Form1: TForm1
     object Memo1: TMemo
       Left = 1
       Top = 1
-      Width = 583
-      Height = 646
+      Width = 379
+      Height = 495
       Align = alClient
       TabOrder = 1
     end
   end
   object Panel_Control: TPanel
-    Left = 585
+    Left = 381
     Top = 0
     Width = 130
-    Height = 669
+    Height = 518
     Align = alLeft
     TabOrder = 0
     object Image1: TImage
@@ -61,16 +61,29 @@ object Form1: TForm1
       Width = 128
       Height = 128
       Align = alTop
+      OnClick = Image1Click
     end
     object ListBox1: TListBox
       Left = 1
       Top = 129
       Width = 128
-      Height = 539
+      Height = 388
       Align = alClient
       ItemHeight = 14
       TabOrder = 0
     end
+  end
+  object User_List: TListBox
+    Left = 511
+    Top = 0
+    Width = 0
+    Height = 518
+    TabStop = False
+    Align = alClient
+    ItemHeight = 14
+    Items.Strings = (
+      'Admin::Admin@root')
+    TabOrder = 2
   end
   object OpenDialog1: TOpenDialog
     Left = 88
@@ -80,19 +93,22 @@ object Form1: TForm1
     Left = 120
     Top = 24
   end
-  object IdTCPClient1: TIdTCPClient
+  object TCPC: TIdTCPClient
     MaxLineAction = maException
     ReadTimeout = 0
-    Port = 0
+    Port = 66535
     Left = 88
     Top = 56
   end
-  object IdTCPServer1: TIdTCPServer
+  object TCPS: TIdTCPServer
+    Active = True
     Bindings = <>
     CommandHandlers = <>
-    DefaultPort = 0
+    DefaultPort = 66535
     Greeting.NumericCode = 0
     MaxConnectionReply.NumericCode = 0
+    OnConnect = TCPSConnect
+    OnExecute = TCPSExecute
     ReplyExceptionCode = 0
     ReplyTexts = <>
     ReplyUnknownCommand.NumericCode = 0
@@ -112,13 +128,17 @@ object Form1: TForm1
   object MainMenu1: TMainMenu
     Left = 152
     Top = 24
+    object Login1: TMenuItem
+      Caption = '&Login'
+      OnClick = Login1Click
+    end
     object Send1: TMenuItem
       Caption = '&Send'
       object File1: TMenuItem
         Caption = '&File'
       end
       object PictureBmpJpg1: TMenuItem
-        Caption = '&Picture(Bmp, Jpg)'
+        Caption = '&Picture(bmp, jpeg)'
       end
     end
   end
