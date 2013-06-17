@@ -9,6 +9,12 @@ uses
   Menus;
 
 type
+  THlist = record
+      th: TIdPeerThread;
+      ip: string;
+      port: integer;
+      id: string;
+  end;
   TForm1 = class(TForm)
     Panel_Chat: TPanel;
     Panel_Control: TPanel;
@@ -41,9 +47,14 @@ type
     { Public declarations }
   end;
 
+const
+  LCount=99;
+
 var
   Form1: TForm1;
   F_NAME, F_Data: String;
+  THA: array[0..LCount] of THlist;
+  tpt: integer = 0;
 
 implementation
 
@@ -77,6 +88,7 @@ var
     List_Count, i : integer;
     k1, k2, k3 : integer;
 begin
+
     t_user:=AThread.Connection.ReadLn();
     t_password:=AThread.Connection.ReadLn();
     {******** DONE ********}
@@ -109,20 +121,70 @@ begin
             AThread.Terminate;
         end;
     end;
+
+    if tpt<>0 then
+    begin
+        for i:=0 to tpt-1 do
+        begin
+            if THA[i].id=t_user then
+            begin
+                THA[ i ].th:=AThread;
+                THA[ i ].ip:=AThread.Connection.Socket.Binding.PeerIP;
+                THA[ i ].port:=AThread.Connection.Socket.Binding.PeerPort;
+                break;
+            end;
+            THA[ tpt ].th:=AThread;
+            THA[ tpt ].ip:=AThread.Connection.Socket.Binding.PeerIP;
+            THA[ tpt ].port:=AThread.Connection.Socket.Binding.PeerPort;
+            THA[ tpt ].id:=t_user;
+            tpt:=tpt+1;
+        end;
+    end
+    else
+    begin
+        THA[ tpt ].th:=AThread;
+        THA[ tpt ].ip:=AThread.Connection.Socket.Binding.PeerIP;
+        THA[ tpt ].port:=AThread.Connection.Socket.Binding.PeerPort;
+        THA[ tpt ].id:=t_user;
+        tpt:=tpt+1;
+    end;
+
 end;
 
 procedure TForm1.TCPSExecute(AThread: TIdPeerThread);
 var
-    temp_0, temp_1, temp_2 : string;
-    k1 :integer;
+    temp_0, temp_1, temp_2,nick,ip,id : string;
+    k1,k2,i,j,port :integer;
 begin
+    //**** find thread ****
+    for i:=0 to tpt-1 do
+    begin
+        if AThread=THA[i].th then
+        begin
+            ip:=THA[i].ip;  id:=THA[i].id;
+            port:=THA[i].port;
+            for j:=0 to User_List.Items.Count-1 do
+            begin
+                temp_0:=User_List.Items[i];
+                k1:=pos('::',temp_0);
+                k2:=pos('@',temp_0);
+                temp_1:=copy(temp_0,k1+2,k2-1);
+                if id=temp_1 then
+                begin
+                    nick:=copy(temp_0,1,k1-1);
+                    break;
+                end;
+            end;
+            break;
+        end;
+    end;
 
-    temp_0:=uppercase( AThread.Connection.ReadLn() );
+    temp_0:=AThread.Connection.ReadLn();
     temp_1:=copy(temp_0,1,1);
     if temp_1='/' then
     begin
         k1:=pos(' ',temp_0);
-        temp_2:=copy(temp_0,2,k1-1);
+        temp_2:=uppercase(copy(temp_0,2,k1-1));
         if temp_2='QUIT' then
         begin
             Athread.Connection.Disconnect;
@@ -131,7 +193,10 @@ begin
     end
     else
     begin
-
+        for i:=0 to tpt-1 do
+        begin
+              THA[i].th.Connection.WriteLn( '['+id+']:'+ temp_0 );
+        end;
     end;
 end;
 
@@ -145,12 +210,15 @@ begin
     s_user:=INPUTBOX('LOGIN','User:','');
     s_password:=INPUTBOX('LOGIN','Password:','');
 
-    TCPC.Connect();
-
-    if TCPC.Connected=true then
+    if (s_ip<>'') and (s_user<>'') and (s_password<>'') then
     begin
-        TCPC.WriteLn(s_user);
-        TCPC.WriteLn(s_password);
+        TCPC.Connect(1000);
+
+        if TCPC.Connected=true then
+        begin
+            TCPC.WriteLn(s_user);
+            TCPC.WriteLn(s_password);
+        end;
     end;
 end;
 
