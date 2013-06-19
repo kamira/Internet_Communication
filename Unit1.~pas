@@ -20,7 +20,6 @@ type
     Panel_Control: TPanel;
     Panel1: TPanel;
     Edit1: TEdit;
-    ListBox1: TListBox;
     Image1: TImage;
     Memo1: TMemo;
     OD: TOpenDialog;
@@ -33,14 +32,13 @@ type
     PictureBmpJpg1: TMenuItem;
     Login1: TMenuItem;
     User_List: TListBox;
-    Timer1: TTimer;
+    Image2: TImage;
     procedure Edit1KeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure Image1Click(Sender: TObject);
     procedure TCPSConnect(AThread: TIdPeerThread);
     procedure TCPSExecute(AThread: TIdPeerThread);
     procedure Login1Click(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
     procedure PictureBmpJpg1Click(Sender: TObject);
     procedure File1Click(Sender: TObject);
   private
@@ -72,6 +70,7 @@ begin
         if Edit1.Text <> '' then
         begin
             TCPC.WriteLn(Edit1.Text);
+            memo1.Lines.Add('[Me]:'+edit1.Text);
             edit1.Text:='';
         end;
     
@@ -96,6 +95,7 @@ procedure TForm1.TCPSConnect(AThread: TIdPeerThread);
 var
     c_user, c_password : string;
     t_user, t_password : string;
+    s_user, s_password : string;
     s : string;
     List_Count, i : integer;
     k1, k2, k3 : integer;
@@ -149,6 +149,35 @@ begin
         end;
     end;
     end;
+    s:=Athread.Connection.ReadLn();
+    if s='@' then
+    begin
+        TCPC.Host:=Athread.Connection.Socket.Binding.PeerIP;
+        TCPC.Connect(1000);
+
+        if TCPC.Connected=true then
+        begin
+            s_user:=INPUTBOX('LOGIN','User:','');
+            TCPC.WriteLn(s_user);
+
+            s_password:=INPUTBOX('LOGIN','Password:','');
+            TCPC.WriteLn(s_password);
+
+            s:=TCPC.ReadLn();
+            if s='200' then
+            begin
+                Memo1.Lines.Add('Success Connection');
+                Send1.Enabled:=true;
+            end
+            else
+            begin
+                Memo1.Lines.Add(s);
+                TCPC.Disconnect;
+            end;
+        end;
+
+    end;
+
 
 end;
 
@@ -203,14 +232,38 @@ begin
         image1.Picture.Bitmap.Assign(jp);
         ms.Free;
         jp.Free;
+    end
+    else if temp0='/*FILE*/' then
+    begin
+        ms:=Tmemorystream.Create;
 
+        sz:=strtoint( AThread.Connection.ReadLn() );
+        Athread.Connection.WriteLn('OK');
+
+        fname:=AThread.Connection.ReadLn();
+        AThread.Connection.WriteLn('OK');
+
+        AThread.Connection.ReadStream( ms,sz );
+        AThread.Connection.WriteLn('OK');
+
+        ms.Position:=0;
+        SD.FileName:=fname;
+        if SD.Execute=true then
+        begin
+
+            ms.SaveToFile(SD.FileName);
+            fname:='';
+        end;
+
+        ms.Free;
     end
     else
     begin
-        for i:=0 to tpt-1 do
+        memo1.Lines.Add('['+id+']:'+ temp0);
+        {for i:=0 to tpt-1 do
         begin
               THA[i].th.Connection.WriteLn( '['+id+']:'+ temp0 );
-        end;
+        end; }
     end;
     end;
 end;
@@ -237,7 +290,8 @@ begin
             if s='200' then
             begin
                 Memo1.Lines.Add('Success Connection');
-                Timer1.Enabled:=true;
+
+                TCPC.WriteLn('@');
                 Send1.Enabled:=true;
             end
             else
@@ -247,20 +301,6 @@ begin
             end;
         end;
     end;
-end;
-
-
-procedure TForm1.Timer1Timer(Sender: TObject);
-var
-    s:string;
-begin
-    try
-        s:=TCPC.ReadLn(#$A, 5);
-    except
-        exit;
-    end;
-          
-    Memo1.Lines.Add(s);
 end;
 
 procedure TForm1.PictureBmpJpg1Click(Sender: TObject);
@@ -277,7 +317,7 @@ begin
         jp.LoadFromFile(od.FileName);
         jp.SaveToStream(ms);
         ms.Position:=0;
-
+        image2.Picture.Assign(jp);
         k:=ms.Size;
         TCPC.WriteLn( inttostr(k) );
         TCPC.ReadLn();
@@ -293,17 +333,17 @@ begin
     end;
 end;
 
-procedure TForm1.File1Click(Sender: TObject);  
+procedure TForm1.File1Click(Sender: TObject);
 var
     ms: Tmemorystream;
+    k: integer;
 begin
     OD.Filter:='';
     if od.Execute=true then
     begin
         TCPC.WriteLn('/*FILE*/');
         ms:=Tmemorystream.Create;
-                jp.LoadFromFile(od.FileName);
-        jp.SaveToStream(ms);
+        ms.LoadFromFile( OD.FileName );
         ms.Position:=0;
 
         k:=ms.Size;
@@ -316,8 +356,8 @@ begin
         tcpc.WriteStream( ms );
         TCPC.ReadLn();
 
+
         ms.Free;
-        jp.Free;
     end;
 
 end;

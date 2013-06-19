@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 166
-  Top = 268
+  Left = 352
+  Top = 212
   Width = 527
   Height = 576
   Caption = 'Internet Communication'
