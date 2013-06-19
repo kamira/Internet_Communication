@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 308
-  Top = 259
+  Left = 166
+  Top = 268
   Width = 527
   Height = 576
   Caption = 'Internet Communication'
@@ -63,14 +63,13 @@ object Form1: TForm1
       Align = alTop
       OnClick = Image1Click
     end
-    object ListBox1: TListBox
+    object Image2: TImage
       Left = 1
-      Top = 129
+      Top = 389
       Width = 128
-      Height = 388
-      Align = alClient
-      ItemHeight = 14
-      TabOrder = 0
+      Height = 128
+      Align = alBottom
+      OnClick = Image1Click
     end
   end
   object User_List: TListBox
@@ -82,20 +81,21 @@ object Form1: TForm1
     Align = alClient
     ItemHeight = 14
     Items.Strings = (
-      'Admin::Admin@root')
+      'root@root'
+      '123@123')
     TabOrder = 2
   end
-  object OpenDialog1: TOpenDialog
+  object OD: TOpenDialog
     Left = 88
     Top = 24
   end
-  object SaveDialog1: TSaveDialog
+  object SD: TSaveDialog
     Left = 120
     Top = 24
   end
   object TCPC: TIdTCPClient
     MaxLineAction = maException
-    ReadTimeout = 0
+    ReadTimeout = 200
     Port = 66535
     Left = 88
     Top = 56
@@ -115,16 +115,6 @@ object Form1: TForm1
     Left = 120
     Top = 56
   end
-  object IdEncoderMIME1: TIdEncoderMIME
-    FillChar = '='
-    Left = 88
-    Top = 88
-  end
-  object IdDecoderMIME1: TIdDecoderMIME
-    FillChar = '='
-    Left = 120
-    Top = 88
-  end
   object MainMenu1: TMainMenu
     Left = 152
     Top = 24
@@ -134,11 +124,14 @@ object Form1: TForm1
     end
     object Send1: TMenuItem
       Caption = '&Send'
+      Enabled = False
       object File1: TMenuItem
         Caption = '&File'
+        OnClick = File1Click
       end
       object PictureBmpJpg1: TMenuItem
-        Caption = '&Picture(bmp, jpeg)'
+        Caption = '&Picture'
+        OnClick = PictureBmpJpg1Click
       end
     end
   end
