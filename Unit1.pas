@@ -166,7 +166,8 @@ begin
             s:=TCPC.ReadLn();
             if s='200' then
             begin
-                Memo1.Lines.Add('Success Connection');
+                Memo1.Lines.Add('Success Connection');  
+                TCPC.WriteLn('*');
                 Send1.Enabled:=true;
             end
             else
