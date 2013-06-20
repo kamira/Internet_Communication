@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 352
-  Top = 212
+  Left = 481
+  Top = 118
   Width = 527
   Height = 576
   Caption = 'Internet Communication'
@@ -12,6 +12,8 @@ object Form1: TForm1
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
+  OnClose = FormClose
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 14
   object Panel_Chat: TPanel
@@ -20,7 +22,6 @@ object Form1: TForm1
     Width = 381
     Height = 518
     Align = alLeft
-    Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     object Panel1: TPanel
       Left = 1
@@ -61,6 +62,7 @@ object Form1: TForm1
       Width = 128
       Height = 128
       Align = alTop
+      Stretch = True
       OnClick = Image1Click
     end
     object Image2: TImage
@@ -69,21 +71,22 @@ object Form1: TForm1
       Width = 128
       Height = 128
       Align = alBottom
+      Stretch = True
       OnClick = Image1Click
     end
-  end
-  object User_List: TListBox
-    Left = 511
-    Top = 0
-    Width = 0
-    Height = 518
-    TabStop = False
-    Align = alClient
-    ItemHeight = 14
-    Items.Strings = (
-      'root@root'
-      '123@123')
-    TabOrder = 2
+    object User_List: TListBox
+      Left = 1
+      Top = 129
+      Width = 128
+      Height = 260
+      TabStop = False
+      Align = alClient
+      ItemHeight = 14
+      Items.Strings = (
+        'root@root'
+        '123@123')
+      TabOrder = 0
+    end
   end
   object OD: TOpenDialog
     Left = 88
@@ -95,7 +98,7 @@ object Form1: TForm1
   end
   object TCPC: TIdTCPClient
     MaxLineAction = maException
-    ReadTimeout = 200
+    ReadTimeout = 1000
     Port = 66535
     Left = 88
     Top = 56
@@ -133,6 +136,10 @@ object Form1: TForm1
         Caption = '&Picture'
         OnClick = PictureBmpJpg1Click
       end
+    end
+    object Register1: TMenuItem
+      Caption = '&Register'
+      OnClick = Register1Click
     end
   end
 end

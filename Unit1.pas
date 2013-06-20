@@ -31,8 +31,9 @@ type
     File1: TMenuItem;
     PictureBmpJpg1: TMenuItem;
     Login1: TMenuItem;
-    User_List: TListBox;
     Image2: TImage;
+    User_List: TListBox;
+    Register1: TMenuItem;
     procedure Edit1KeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure Image1Click(Sender: TObject);
@@ -41,6 +42,9 @@ type
     procedure Login1Click(Sender: TObject);
     procedure PictureBmpJpg1Click(Sender: TObject);
     procedure File1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Register1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -56,6 +60,7 @@ var
   THA: array[0..LCount] of THlist;
   tpt: integer = 0;
   fname: string = '';
+  anid : string;
   
   jp: Tjpegimage;
 
@@ -128,26 +133,8 @@ begin
     end
     else
     begin
-    Athread.Connection.WriteLn('200');
-
-    for i:=0 to tpt-1 do
-    begin
-        if THA[i].id=t_user then
-        begin
-            THA[ i ].th:=AThread;
-            THA[ i ].ip:=AThread.Connection.Socket.Binding.PeerIP;
-            THA[ i ].port:=AThread.Connection.Socket.Binding.PeerPort;
-            break;
-        end
-        else if i=tpt-1 then
-        begin
-            THA[ tpt ].th:=AThread;
-            THA[ tpt ].ip:=AThread.Connection.Socket.Binding.PeerIP;
-            THA[ tpt ].port:=AThread.Connection.Socket.Binding.PeerPort;
-            THA[ tpt ].id:=t_user;
-            tpt:=tpt+1;
-        end;
-    end;
+        Athread.Connection.WriteLn('200');
+        anid:=c_user;
     end;
     s:=Athread.Connection.ReadLn();
     if s='@' then
@@ -169,6 +156,7 @@ begin
                 Memo1.Lines.Add('Success Connection');  
                 TCPC.WriteLn('*');
                 Send1.Enabled:=true;
+                Login1.Enabled:=false;
             end
             else
             begin
@@ -190,30 +178,10 @@ var
     sz: integer;
     jp: Tjpegimage;
 begin
-    //**** find thread ****
-    for i:=0 to tpt-1 do
-    begin
-        if AThread=THA[i].th then
-        begin
-            id:=THA[i].id;
-            break;
-        end;
-    end;
     while true do
     begin
     temp0:=AThread.Connection.ReadLn();
-    temp1:=copy(temp0,1,1);
-    if temp1='/' then
-    begin
-        k1:=pos(' ',temp0);
-        temp2:=uppercase(copy(temp0,2,k1-1));
-        if temp2='QUIT' then
-        begin
-            Athread.Connection.Disconnect;
-            AThread.Terminate;
-        end;
-    end
-    else if temp0='/*PICTURE*/' then
+    if temp0='/*PICTURE*/' then
     begin
         ms:=Tmemorystream.Create;
         jp:=TJpegimage.Create;
@@ -260,11 +228,7 @@ begin
     end
     else
     begin
-        memo1.Lines.Add('['+id+']:'+ temp0);
-        {for i:=0 to tpt-1 do
-        begin
-              THA[i].th.Connection.WriteLn( '['+id+']:'+ temp0 );
-        end; }
+        memo1.Lines.Add('['+anid+']:'+ temp0);
     end;
     end;
 end;
@@ -294,6 +258,7 @@ begin
 
                 TCPC.WriteLn('@');
                 Send1.Enabled:=true;
+                Login1.Enabled:=false;
             end
             else
             begin
@@ -309,7 +274,7 @@ var
     ms: Tmemorystream;
     k: integer;
 begin
-    OD.Filter:='JPEG(*.jpeg,*.jpg)|*.jpeg,*.jpg';
+    OD.Filter:='*.jpeg, *.jpg';
     if od.Execute=true then
     begin
         TCPC.WriteLn('/*PICTURE*/');
@@ -360,6 +325,33 @@ begin
 
         ms.Free;
     end;
+
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+    try
+        User_List.Items.LoadFromFile('C:/user.kk');
+    except
+    end;
+end;
+
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+    User_List.Items.SaveToFile('C:/user.kk');
+    TCPC.Disconnect;
+    TCPC.DisconnectSocket;
+end;
+
+procedure TForm1.Register1Click(Sender: TObject);
+var
+    s_user, s_password : string;
+begin
+    s_user:=INPUTBOX('Register','User:','');
+    s_password:=INPUTBOX('Register','Password:','');
+
+    if (s_user <> '') and (s_password <> '') then
+        User_List.Items.Add(s_user + '@' + s_password);
 
 end;
 
